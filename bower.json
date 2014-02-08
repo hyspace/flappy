@@ -1,0 +1,27 @@
+{
+  "name": "flappy",
+  "version": "0.0.1",
+  "authors": [
+    "shan zhou <hyspace@gmail.com>"
+  ],
+  "description": "flappy bird in html5",
+  "main": "index.html",
+  "keywords": [
+    "game",
+    "flappy",
+    "bird"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/hyspace/flappy",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "phaser": "~1.1.4"
+  }
+}

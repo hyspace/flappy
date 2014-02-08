@@ -1,0 +1,29 @@
+{
+  "name": "flappy",
+  "version": "0.0.1",
+  "description": "flappy bird in html5",
+  "devDependencies": {
+    "gulp": "~3.5.2",
+    "coffee-script": "~1.7.1",
+    "gulp-coffee": "~1.4.1",
+    "gulp-util": "~2.2.14"
+  },
+  "scripts": {
+    "start": "./node_modules/.bin/gulp --require coffee-script/register"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hyspace/flappy"
+  },
+  "keywords": [
+    "game",
+    "flappy",
+    "bird"
+  ],
+  "author": "shan zhou <hyspace@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hyspace/flappy/issues"
+  },
+  "homepage": "https://github.com/hyspace/flappy"
+}
