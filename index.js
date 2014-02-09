@@ -10,7 +10,7 @@ FLAP = 350;
 
 SPAWN_RATE = 1 / 1000;
 
-OPENING = 120;
+OPENING = 100;
 
 SCALE = 1;
 
