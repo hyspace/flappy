@@ -8,7 +8,7 @@ SCALE = 1
 
 HEIGHT = 512
 WIDTH = 288
-GAME_HEIGHT = 350
+GAME_HEIGHT = 336
 GROUND_HEIGHT = 112
 GROUND_Y = HEIGHT - GROUND_HEIGHT
 
@@ -44,10 +44,6 @@ floor = Math.floor
       tubeY = floor(openPos + OPENING / 2)
     tube = tubes.create(game.world.width, tubeY, tubeKey)
     tube.body.allowGravity = false
-
-    # # Flip tube! *GASP*
-    # tube.scale.setTo SCALE, (if flipped then -SCALE else SCALE)
-    # tube.body.offset.y = (if flipped then -tube.body.height * SCALE else 0)
 
     # Move to the left
     tube.body.velocity.x = -SPEED
