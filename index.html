@@ -1,11 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title></title>
+  <title>Flappy Bird</title>
+  <meta name="viewport" content="width=device-width, user-scalable=no">
+  <style>
+  body{
+    margin: 0;
+    padding: 0;
+  }
+  #screen{
+    margin: 0 auto;
+    max-width: 288px;
+    max-height: 512px;
+    position: relative;
+    overflow: hidden;
+  }
+  </style>
 </head>
 <body>
-<canvas></canvas>
-<script src="bower_components/phaser/phaser.min.js"></script>
+<div id="screen"></div>
+<script src="bower_components/phaser/phaser.js"></script>
 <script src="index.js"></script>
 </body>
 </html>
