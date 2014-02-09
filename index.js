@@ -117,9 +117,10 @@ this.main = function() {
       inv.body.velocity.x = 0;
     });
     game.time.events.remove(tubesTimer);
-    game.input.onTap.addOnce(reset);
+    game.time.events.add(1000, function() {
+      return game.input.onTap.addOnce(reset);
+    });
     hurtSnd.play();
-    fallSnd.play();
   };
   flap = function() {
     var tween;

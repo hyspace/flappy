@@ -105,9 +105,9 @@ floor = Math.floor
     game.time.events.remove(tubesTimer)
 
     # Make bird reset the game
-    game.input.onTap.addOnce reset
+    game.time.events.add 1000, ->
+      game.input.onTap.addOnce reset
     hurtSnd.play()
-    fallSnd.play()
     return
 
   flap = ->
