@@ -1,7 +1,7 @@
 gulp = require 'gulp'
 coffee = require 'gulp-coffee'
 gutil = require 'gulp-util'
-connect = require("gulp-connect")
+connect = require 'gulp-connect'
 
 gulp.task 'coffee', ->
   gulp.src ['index.coffee', '!gulpfile.coffee']
