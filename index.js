@@ -1,14 +1,14 @@
-var DEBUG, FLAP, GAME_HEIGHT, GRAVITY, GROUND_HEIGHT, GROUND_Y, HEIGHT, OPENING, SCALE, SPAWN_RATE, SPEED, WIDTH, WebFontConfig, bg, bird, credits, fallSnd, flapSnd, floor, gameOver, gameOverText, gameStarted, ground, hurtSnd, instText, invs, parent, scale, scalex, scaley, score, scoreSnd, scoreText, tubes, tubesTimer, wrapper;
+var DEBUG, FLAP, GAME_HEIGHT, GRAVITY, GROUND_HEIGHT, GROUND_Y, HEIGHT, OPENING, SCALE, SPAWN_RATE, SPEED, WIDTH, WebFontConfig, bg, bird, credits, deadInvs, deadTubeBottoms, deadTubeTops, fallSnd, flapSnd, floor, gameOver, gameOverText, gameStarted, ground, hurtSnd, instText, invs, parent, scale, scalex, scaley, score, scoreSnd, scoreText, swooshSnd, tubes, tubesTimer, wrapper;
 
 DEBUG = false;
 
-SPEED = 200;
+SPEED = 160;
 
-GRAVITY = 1400;
+GRAVITY = 1100;
 
-FLAP = 350;
+FLAP = 320;
 
-SPAWN_RATE = 1 / 1000;
+SPAWN_RATE = 1 / 1200;
 
 OPENING = 100;
 
@@ -30,35 +30,43 @@ gameStarted = void 0;
 
 gameOver = void 0;
 
-score = void 0;
+deadTubeTops = [];
 
-bg = void 0;
+deadTubeBottoms = [];
 
-credits = void 0;
+deadInvs = [];
 
-tubes = void 0;
+bg = null;
 
-invs = void 0;
+credits = null;
 
-bird = void 0;
+tubes = null;
 
-ground = void 0;
+invs = null;
 
-scoreText = void 0;
+bird = null;
 
-instText = void 0;
+ground = null;
 
-gameOverText = void 0;
+score = null;
 
-flapSnd = void 0;
+scoreText = null;
 
-scoreSnd = void 0;
+instText = null;
 
-hurtSnd = void 0;
+gameOverText = null;
 
-fallSnd = void 0;
+flapSnd = null;
 
-tubesTimer = void 0;
+scoreSnd = null;
+
+hurtSnd = null;
+
+fallSnd = null;
+
+swooshSnd = null;
+
+tubesTimer = null;
 
 floor = Math.floor;
 
@@ -66,26 +74,54 @@ this.main = function() {
   var addScore, create, flap, game, preload, render, reset, setGameOver, spawntube, spawntubes, start, state, update;
   spawntube = function(openPos, flipped) {
     var tube, tubeKey, tubeY;
+    tube = null;
     tubeKey = flipped ? "tubeTop" : "tubeBottom";
     if (flipped) {
       tubeY = floor(openPos - OPENING / 2 - 320);
     } else {
       tubeY = floor(openPos + OPENING / 2);
     }
-    tube = tubes.create(game.world.width, tubeY, tubeKey);
-    tube.body.allowGravity = false;
+    if (deadTubeTops.length > 0 && tubeKey === "tubeTop") {
+      tube = deadTubeTops.pop().revive();
+      tube.reset(game.world.width, tubeY);
+    } else if (deadTubeBottoms.length > 0 && tubeKey === "tubeBottom") {
+      tube = deadTubeBottoms.pop().revive();
+      tube.reset(game.world.width, tubeY);
+    } else {
+      tube = tubes.create(game.world.width, tubeY, tubeKey);
+      tube.body.allowGravity = false;
+    }
     tube.body.velocity.x = -SPEED;
     return tube;
   };
   spawntubes = function() {
     var bottube, inv, toptube, tubeY;
+    tubes.forEachAlive(function(tube) {
+      if (tube.x + tube.width < game.world.bounds.left) {
+        if (tube.key === "tubeTop") {
+          deadTubeTops.push(tube.kill());
+        }
+        if (tube.key === "tubeBottom") {
+          deadTubeBottoms.push(tube.kill());
+        }
+      }
+    });
+    invs.forEachAlive(function(invs) {
+      if (invs.x + invs.width < game.world.bounds.left) {
+        deadInvs.push(invs.kill());
+      }
+    });
     tubeY = game.world.height / 2 + (Math.random() - 0.5) * game.world.height * 0.2;
     bottube = spawntube(tubeY);
     toptube = spawntube(tubeY, true);
-    inv = invs.create(toptube.x + toptube.width / 2, 0);
-    inv.width = 2;
-    inv.height = game.world.height;
-    inv.body.allowGravity = false;
+    if (deadInvs.length > 0) {
+      inv = deadInvs.pop().revive().reset(toptube.x + toptube.width / 2, 0);
+    } else {
+      inv = invs.create(toptube.x + toptube.width / 2, 0);
+      inv.width = 2;
+      inv.height = game.world.height;
+      inv.body.allowGravity = false;
+    }
     inv.body.velocity.x = -SPEED;
   };
   addScore = function(_, inv) {
@@ -118,7 +154,10 @@ this.main = function() {
     });
     game.time.events.remove(tubesTimer);
     game.time.events.add(1000, function() {
-      return game.input.onTap.addOnce(reset);
+      return game.input.onTap.addOnce(function() {
+        reset();
+        return swooshSnd.play();
+      });
     });
     hurtSnd.play();
   };
@@ -146,15 +185,17 @@ this.main = function() {
         bird: ["assets/bird.png", 36, 26]
       },
       image: {
-        tubeTop: ["assets/tube1.png"],
-        tubeBottom: ["assets/tube2.png"],
-        ground: ["assets/ground.png"]
+        tubeTop: ["/assets/tube1.png"],
+        tubeBottom: ["/assets/tube2.png"],
+        ground: ["/assets/ground.png"],
+        bg: ["/assets/bg.png"]
       },
       audio: {
-        flap: ["assets/sfx_wing.mp3"],
-        score: ["assets/sfx_point.mp3"],
-        hurt: ["assets/sfx_hit.mp3"],
-        fall: ["assets/sfx_swooshing.mp3"]
+        flap: ["/assets/sfx_wing.mp3"],
+        score: ["/assets/sfx_point.mp3"],
+        hurt: ["/assets/sfx_hit.mp3"],
+        fall: ["/assets/sfx_die.mp3"],
+        swoosh: ["/assets/sfx_swooshing.mp3"]
       }
     };
     Object.keys(assets).forEach(function(type) {
@@ -164,15 +205,15 @@ this.main = function() {
     });
   };
   create = function() {
+    console.log("%chttps://github.com/hyspace/flappy", "color: black; font-size: x-large");
     game.world.width = WIDTH;
     game.world.height = HEIGHT;
-    bg = game.add.graphics(0, 0);
-    bg.beginFill(0xDDEEFF, 1);
-    bg.drawRect(0, 0, game.world.width, game.world.height);
-    bg.endFill();
-    credits = game.add.text(game.world.width / 2, 10, "", {
+    bg = game.add.tileSprite(0, 0, WIDTH, HEIGHT, 'bg');
+    credits = game.add.text(game.world.width / 2, HEIGHT - GROUND_Y + 50, "", {
       font: "8px \"Press Start 2P\"",
       fill: "#fff",
+      stroke: "#430",
+      strokeThickness: 4,
       align: "center"
     });
     credits.anchor.x = 0.5;
@@ -214,6 +255,7 @@ this.main = function() {
     scoreSnd = game.add.audio("score");
     hurtSnd = game.add.audio("hurt");
     fallSnd = game.add.audio("fall");
+    swooshSnd = game.add.audio("swoosh");
     game.input.onDown.add(flap);
     reset();
   };
@@ -222,7 +264,8 @@ this.main = function() {
     gameOver = false;
     score = 0;
     credits.renderable = true;
-    scoreText.setText("Flappy Bird?");
+    credits.setText("see console log\nfor github url");
+    scoreText.setText("Flappy Bird");
     instText.setText("TOUCH TO FLAP\nbird WINGS");
     gameOverText.renderable = false;
     bird.body.allowGravity = false;
@@ -257,20 +300,18 @@ this.main = function() {
         } else {
           bird.animations.play();
         }
-        game.physics.overlap(bird, tubes, setGameOver);
+        game.physics.overlap(bird, tubes, function() {
+          setGameOver();
+          return fallSnd.play();
+        });
         if (!gameOver && bird.body.bottom >= GROUND_Y) {
           setGameOver();
         }
         game.physics.overlap(bird, invs, addScore);
-        tubes.forEachAlive(function(tube) {
-          if (tube.x + tube.width < game.world.bounds.left) {
-            tube.kill();
-          }
-        });
       } else {
         tween = game.add.tween(bird).to({
           angle: 90
-        }, 150, Phaser.Easing.Bounce.Out, true);
+        }, 100, Phaser.Easing.Bounce.Out, true);
         if (bird.body.bottom >= GROUND_Y + 3) {
           bird.y = GROUND_Y - 13;
           bird.body.velocity.y = 0;

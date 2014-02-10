@@ -10,6 +10,10 @@ gulp.task 'coffee', ->
   .pipe gulp.dest '.'
   .pipe connect.reload()
 
+gulp.task 'watch', ->
+  gulp.watch '**/*.coffee', ->
+    gulp.run 'coffee'
+
 gulp.task "connect", connect.server(
   root: __dirname
   port: 3000
@@ -18,7 +22,4 @@ gulp.task "connect", connect.server(
     browser: "Google Chrome" # if not working OS X browser: 'Google Chrome'
 )
 
-gulp.task 'default', ['coffee', 'connect']
-
-gulp.watch '**/*.coffee', (ev)->
-  gulp.run 'coffee'
+gulp.task 'default', ['coffee', 'connect', 'watch']

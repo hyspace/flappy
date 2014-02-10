@@ -1,8 +1,8 @@
 DEBUG = false
-SPEED = 200
-GRAVITY = 1400
-FLAP = 350
-SPAWN_RATE = 1 / 1000
+SPEED = 160
+GRAVITY = 1100
+FLAP = 320
+SPAWN_RATE = 1 / 1200
 OPENING = 100
 SCALE = 1
 
@@ -16,40 +16,67 @@ parent = document.querySelector("#screen")
 gameStarted = undefined
 gameOver = undefined
 
-score = undefined
-bg = undefined
-credits = undefined
-tubes = undefined
-invs = undefined
-bird = undefined
-ground = undefined
-scoreText = undefined
-instText = undefined
-gameOverText = undefined
-flapSnd = undefined
-scoreSnd = undefined
-hurtSnd = undefined
-fallSnd = undefined
-tubesTimer = undefined
+deadTubeTops = []
+deadTubeBottoms = []
+deadInvs = []
+
+bg = null
+credits = null
+tubes = null
+invs = null
+bird = null
+ground = null
+
+score = null
+scoreText = null
+instText = null
+gameOverText = null
+
+flapSnd = null
+scoreSnd = null
+hurtSnd = null
+fallSnd = null
+swooshSnd = null
+
+tubesTimer = null
 
 floor = Math.floor
 
-
 @main = ->
   spawntube = (openPos, flipped) ->
+    tube = null
+
     tubeKey = if flipped then "tubeTop" else "tubeBottom"
     if flipped
       tubeY = floor(openPos - OPENING / 2 - 320)
     else
       tubeY = floor(openPos + OPENING / 2)
-    tube = tubes.create(game.world.width, tubeY, tubeKey)
-    tube.body.allowGravity = false
+
+    if deadTubeTops.length > 0 and tubeKey == "tubeTop"
+      tube = deadTubeTops.pop().revive()
+      tube.reset(game.world.width, tubeY)
+    else if deadTubeBottoms.length > 0 and tubeKey == "tubeBottom"
+      tube = deadTubeBottoms.pop().revive()
+      tube.reset(game.world.width, tubeY)
+    else
+      tube = tubes.create(game.world.width, tubeY, tubeKey)
+      tube.body.allowGravity = false
 
     # Move to the left
     tube.body.velocity.x = -SPEED
     tube
 
   spawntubes = ->
+    # check dead tubes
+    tubes.forEachAlive (tube) ->
+      if tube.x + tube.width < game.world.bounds.left
+        deadTubeTops.push tube.kill() if tube.key == "tubeTop"
+        deadTubeBottoms.push tube.kill() if tube.key == "tubeBottom"
+      return
+    invs.forEachAlive (invs) ->
+      deadInvs.push invs.kill() if invs.x + invs.width < game.world.bounds.left
+      return
+
     tubeY = game.world.height / 2 + (Math.random()-0.5) * game.world.height * 0.2
 
     # Bottom tube
@@ -59,10 +86,13 @@ floor = Math.floor
     toptube = spawntube(tubeY, true)
 
     # Add invisible thingy
-    inv = invs.create(toptube.x + toptube.width / 2, 0)
-    inv.width = 2
-    inv.height = game.world.height
-    inv.body.allowGravity = false
+    if deadInvs.length > 0
+      inv = deadInvs.pop().revive().reset(toptube.x + toptube.width / 2, 0)
+    else
+      inv = invs.create(toptube.x + toptube.width / 2, 0)
+      inv.width = 2
+      inv.height = game.world.height
+      inv.body.allowGravity = false
     inv.body.velocity.x = -SPEED
     return
 
@@ -102,7 +132,10 @@ floor = Math.floor
 
     # Make bird reset the game
     game.time.events.add 1000, ->
-      game.input.onTap.addOnce reset
+      game.input.onTap.addOnce ->
+        reset()
+        swooshSnd.play()
+
     hurtSnd.play()
     return
 
@@ -131,12 +164,14 @@ floor = Math.floor
         tubeTop: ["/assets/tube1.png"]
         tubeBottom: ["/assets/tube2.png"]
         ground: ["/assets/ground.png"]
+        bg: ["/assets/bg.png"]
 
       audio:
         flap: ["/assets/sfx_wing.mp3"]
         score: ["/assets/sfx_point.mp3"]
         hurt: ["/assets/sfx_hit.mp3"]
-        fall:["/assets/sfx_swooshing.mp3"]
+        fall: ["/assets/sfx_die.mp3"]
+        swoosh: ["/assets/sfx_swooshing.mp3"]
 
     Object.keys(assets).forEach (type) ->
       Object.keys(assets[type]).forEach (id) ->
@@ -148,24 +183,25 @@ floor = Math.floor
     return
 
   create = ->
+    console.log("%chttps://github.com/hyspace/flappy", "color: black; font-size: x-large");
 
     # Set world dimensions
     game.world.width = WIDTH
     game.world.height = HEIGHT
 
     # Draw bg
-    bg = game.add.graphics(0, 0)
-    bg.beginFill 0xDDEEFF, 1
-    bg.drawRect 0, 0, game.world.width, game.world.height
-    bg.endFill()
+    bg = game.add.tileSprite(0, 0, WIDTH, HEIGHT, 'bg')
 
     # Credits 'yo
-    credits = game.add.text(game.world.width / 2, 10, "",
+    credits = game.add.text(game.world.width / 2, HEIGHT - GROUND_Y + 50, "",
       font: "8px \"Press Start 2P\""
       fill: "#fff"
+      stroke: "#430"
+      strokeThickness: 4
       align: "center"
     )
     credits.anchor.x = 0.5
+
 
     # # Add clouds group
     # clouds = game.add.group()
@@ -235,6 +271,7 @@ floor = Math.floor
     scoreSnd = game.add.audio("score")
     hurtSnd = game.add.audio("hurt")
     fallSnd = game.add.audio("fall")
+    swooshSnd = game.add.audio("swoosh")
 
     # Add controls
     game.input.onDown.add flap
@@ -248,7 +285,8 @@ floor = Math.floor
     gameOver = false
     score = 0
     credits.renderable = true
-    scoreText.setText "Flappy Bird?"
+    credits.setText "see console log\nfor github url"
+    scoreText.setText "Flappy Bird"
     instText.setText "TOUCH TO FLAP\nbird WINGS"
     gameOverText.renderable = false
     bird.body.allowGravity = false
@@ -260,6 +298,7 @@ floor = Math.floor
     return
 
   start = ->
+
     credits.renderable = false
     bird.body.allowGravity = true
     bird.body.gravity.y = GRAVITY
@@ -291,18 +330,17 @@ floor = Math.floor
           bird.animations.play()
 
         # Check game over
-        game.physics.overlap bird, tubes, setGameOver
-        setGameOver()  if not gameOver and bird.body.bottom >= GROUND_Y
+        game.physics.overlap bird, tubes, ->
+          setGameOver()
+          fallSnd.play()
+        setGameOver() if not gameOver and bird.body.bottom >= GROUND_Y
 
         # Add score
         game.physics.overlap bird, invs, addScore
 
-        # Remove offscreen tubes
-        tubes.forEachAlive (tube) ->
-          tube.kill() if tube.x + tube.width < game.world.bounds.left
-          return
       else
-        tween = game.add.tween(bird).to(angle: 90, 150, Phaser.Easing.Bounce.Out, true);
+        # rotate the bird to make sure its head hit ground
+        tween = game.add.tween(bird).to(angle: 90, 100, Phaser.Easing.Bounce.Out, true);
         if bird.body.bottom >= GROUND_Y + 3
           bird.y = GROUND_Y - 13
           bird.body.velocity.y = 0
