@@ -1,4 +1,4 @@
-var DEBUG, FLAP, GAME_HEIGHT, GRAVITY, GROUND_HEIGHT, GROUND_Y, HEIGHT, OPENING, SCALE, SPAWN_RATE, SPEED, WIDTH, WebFontConfig, bg, bird, credits, deadInvs, deadTubeBottoms, deadTubeTops, fallSnd, flapSnd, floor, gameOver, gameOverText, gameStarted, ground, hurtSnd, instText, invs, parent, scale, scalex, scaley, score, scoreSnd, scoreText, swooshSnd, tubes, tubesTimer, wrapper;
+var DEBUG, FLAP, GAME_HEIGHT, GRAVITY, GROUND_HEIGHT, GROUND_Y, HEIGHT, OPENING, SCALE, SPAWN_RATE, SPEED, WIDTH, WebFontConfig, bg, bird, credits, deadInvs, deadTubeBottoms, deadTubeTops, fallSnd, flapSnd, floor, gameOver, gameOverText, gameStarted, ground, hurtSnd, instText, invs, main, parent, score, scoreSnd, scoreText, swooshSnd, tubes, tubesTimer;
 
 DEBUG = false;
 
@@ -14,13 +14,13 @@ OPENING = 100;
 
 SCALE = 1;
 
-HEIGHT = 512;
+HEIGHT = 384;
 
 WIDTH = 288;
 
 GAME_HEIGHT = 336;
 
-GROUND_HEIGHT = 112;
+GROUND_HEIGHT = 64;
 
 GROUND_Y = HEIGHT - GROUND_HEIGHT;
 
@@ -70,7 +70,7 @@ tubesTimer = null;
 
 floor = Math.floor;
 
-this.main = function() {
+main = function() {
   var addScore, create, flap, game, preload, render, reset, setGameOver, spawntube, spawntubes, start, state, update;
   spawntube = function(openPos, flipped) {
     var tube, tubeKey, tubeY;
@@ -206,6 +206,9 @@ this.main = function() {
   };
   create = function() {
     console.log("%chttps://github.com/hyspace/flappy", "color: black; font-size: x-large");
+    Phaser.Canvas.setSmoothingEnabled(game.context, false);
+    game.stage.scaleMode = Phaser.StageScaleMode.SHOW_ALL;
+    game.stage.scale.setScreenSize(true);
     game.world.width = WIDTH;
     game.world.height = HEIGHT;
     bg = game.add.tileSprite(0, 0, WIDTH, HEIGHT, 'bg');
@@ -343,14 +346,14 @@ this.main = function() {
     update: update,
     render: render
   };
-  game = new Phaser.Game(0, 0, Phaser.CANVAS, parent, state, false, false);
+  game = new Phaser.Game(WIDTH, HEIGHT, Phaser.CANVAS, parent, state, false, false);
 };
 
 WebFontConfig = {
   google: {
     families: ['Press+Start+2P::latin']
   },
-  active: this.main
+  active: main
 };
 
 (function() {
@@ -362,17 +365,3 @@ WebFontConfig = {
   s = document.getElementsByTagName('script')[0];
   return s.parentNode.insertBefore(wf, s);
 })();
-
-scalex = window.innerWidth / WIDTH;
-
-scaley = window.innerHeight / GAME_HEIGHT;
-
-scale = Math.min(scalex, scaley);
-
-wrapper = document.querySelector("#wrapper");
-
-wrapper.style.height = scale * GAME_HEIGHT + 'px';
-
-wrapper.style.width = scale * WIDTH + 'px';
-
-parent.style.zoom = scale;

@@ -6,10 +6,10 @@ SPAWN_RATE = 1 / 1200
 OPENING = 100
 SCALE = 1
 
-HEIGHT = 512
+HEIGHT = 384
 WIDTH = 288
 GAME_HEIGHT = 336
-GROUND_HEIGHT = 112
+GROUND_HEIGHT = 64
 GROUND_Y = HEIGHT - GROUND_HEIGHT
 
 parent = document.querySelector("#screen")
@@ -42,7 +42,7 @@ tubesTimer = null
 
 floor = Math.floor
 
-@main = ->
+main = ->
   spawntube = (openPos, flipped) ->
     tube = null
 
@@ -186,6 +186,9 @@ floor = Math.floor
     console.log("%chttps://github.com/hyspace/flappy", "color: black; font-size: x-large");
 
     # Set world dimensions
+    Phaser.Canvas.setSmoothingEnabled(game.context, false)
+    game.stage.scaleMode = Phaser.StageScaleMode.SHOW_ALL
+    game.stage.scale.setScreenSize(true)
     game.world.width = WIDTH
     game.world.height = HEIGHT
 
@@ -374,13 +377,13 @@ floor = Math.floor
     update: update
     render: render
 
-  game = new Phaser.Game(0, 0, Phaser.CANVAS, parent, state, false, false)
+  game = new Phaser.Game(WIDTH, HEIGHT, Phaser.CANVAS, parent, state, false, false)
   return
 
 WebFontConfig =
   google:
     families: [ 'Press+Start+2P::latin' ]
-  active: @main
+  active: main
 (->
   wf = document.createElement('script')
   wf.src = (if 'https:' == document.location.protocol then 'https' else 'http') +
@@ -390,11 +393,3 @@ WebFontConfig =
   s = document.getElementsByTagName('script')[0]
   s.parentNode.insertBefore(wf, s)
 )()
-
-scalex = window.innerWidth / WIDTH
-scaley = window.innerHeight / GAME_HEIGHT
-scale = Math.min(scalex, scaley)
-wrapper = document.querySelector("#wrapper")
-wrapper.style.height = scale * GAME_HEIGHT + 'px'
-wrapper.style.width = scale * WIDTH + 'px'
-parent.style.zoom = scale
