@@ -285,11 +285,10 @@ this.main = function() {
     gameStarted = true;
   };
   update = function() {
-    var dvy, tween;
+    var tween;
     if (gameStarted) {
       if (!gameOver) {
-        dvy = FLAP + bird.body.velocity.y;
-        bird.angle = (90 * dvy / FLAP) - 180;
+        bird.angle = (90 * (FLAP + bird.body.velocity.y) / FLAP) - 180;
         if (bird.angle < -30) {
           bird.angle = -30;
         }
