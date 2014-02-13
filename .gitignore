@@ -30,6 +30,8 @@ build
 .grunt
 
 node_modules
+bower_components
+tmp
 
 
 # workspace files are user-specific

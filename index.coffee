@@ -21,7 +21,7 @@ deadTubeBottoms = []
 deadInvs = []
 
 bg = null
-credits = null
+# credits = null
 tubes = null
 invs = null
 bird = null
@@ -39,6 +39,9 @@ fallSnd = null
 swooshSnd = null
 
 tubesTimer = null
+
+githubHtml = """<iframe src="http://ghbtns.com/github-btn.html?user=hyspace&repo=flappy&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="150" height="30"></iframe>"""
 
 floor = Math.floor
 
@@ -184,6 +187,8 @@ main = ->
 
   create = ->
     console.log("%chttps://github.com/hyspace/flappy", "color: black; font-size: x-large");
+    ratio = window.innerWidth / window.innerHeight
+    document.querySelector('#github').innerHTML = githubHtml if ratio > 1.15 or ratio < 0.7
 
     # Set world dimensions
     Phaser.Canvas.setSmoothingEnabled(game.context, false)
@@ -196,14 +201,14 @@ main = ->
     bg = game.add.tileSprite(0, 0, WIDTH, HEIGHT, 'bg')
 
     # Credits 'yo
-    credits = game.add.text(game.world.width / 2, HEIGHT - GROUND_Y + 50, "",
-      font: "8px \"Press Start 2P\""
-      fill: "#fff"
-      stroke: "#430"
-      strokeThickness: 4
-      align: "center"
-    )
-    credits.anchor.x = 0.5
+    # credits = game.add.text(game.world.width / 2, HEIGHT - GROUND_Y + 50, "",
+    #   font: "8px \"Press Start 2P\""
+    #   fill: "#fff"
+    #   stroke: "#430"
+    #   strokeThickness: 4
+    #   align: "center"
+    # )
+    # credits.anchor.x = 0.5
 
 
     # # Add clouds group
@@ -287,8 +292,8 @@ main = ->
     gameStarted = false
     gameOver = false
     score = 0
-    credits.renderable = true
-    credits.setText "see console log\nfor github url"
+    # credits.renderable = true
+    # credits.setText "see console log\nfor github url"
     scoreText.setText "Flappy Bird"
     instText.setText "TOUCH TO FLAP\nbird WINGS"
     gameOverText.renderable = false
@@ -302,7 +307,7 @@ main = ->
 
   start = ->
 
-    credits.renderable = false
+    # credits.renderable = false
     bird.body.allowGravity = true
     bird.body.gravity.y = GRAVITY
 
