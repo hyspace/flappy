@@ -8,6 +8,7 @@
     margin: 0;
     padding: 0;
     height: 100%;
+    background: #000;
   }
   #screen canvas{
     margin: 0 auto;
@@ -17,9 +18,19 @@
     bottom: 5px;
     right:5px;
   }
+  #loading{
+    position: absolute;
+    font-family: "Verdana";
+    width: 100%;
+    text-align: center;
+    color: white;
+    font-size: 24px;
+    top: 50%;
+  }
   </style>
 </head>
 <body>
+<div id="loading">Loading...</div>
 <div id="screen"></div>
 <div id="github"></div>
 <script src="index.min.js?v=02131824"></script>
