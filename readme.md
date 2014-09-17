@@ -1,6 +1,6 @@
-#HTML5 flappy bird
+#HTML5 fleppy bird
 
-play here: http://hyspace.io/flappy/
+when the dreadlocked bird went lost in the realms of god he comes across an amazing adventure.
 
 based on http://uralozden.com/flappy/
 
